@@ -6,4 +6,4 @@
  *
  */
 
-package lafkareine.util.collecbine;
+package lafkareine.util.collecbine.old;

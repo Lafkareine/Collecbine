@@ -1,7 +1,8 @@
 
-package lafkareine.util.collecbine;
+package lafkareine.util.collecbine.old;
 
 
+import java.util.Collections;
 import java.util.List;
 
 
@@ -14,7 +15,7 @@ public class Attribute<O, A> {
 	public Attribute(O object, List<A> attributes) {
 		super();
 		this.object = object;
-		this.attribute = attributes;
+		this.attribute = Collections.unmodifiableList(attributes);
 	}
 	
 	@Override

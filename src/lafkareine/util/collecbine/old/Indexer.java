@@ -1,5 +1,5 @@
 
-package lafkareine.util.collecbine;
+package lafkareine.util.collecbine.old;
 
 
 import static java.util.Spliterator.*;

@@ -1,9 +1,6 @@
-package lafkareine.util.collecbine;
+package lafkareine.util.collecbine.old;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -66,7 +63,15 @@ public class Extractor<T,R> implements Iterable{
 	}
 
 	public List list(){
-		return
+		int size = 0;
+		for(T e:root){
+			size += navigator.apply(e).size();
+		}
+		ArrayList<R> list = new ArrayList<>(size);
+		for(T e:root){
+			list.addAll(navigator.apply(e));
+		}
+		return Collections.unmodifiableList(list);
 	}
 
 	public static <T,R> List<R> list(Collection<? extends T> root, Function<? super T,? extends Collection<R>> navigator){

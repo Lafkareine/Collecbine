@@ -1,5 +1,5 @@
 
-package lafkareine.util.collecbine;
+package lafkareine.util.collecbine.old;
 
 
 import static java.util.Spliterator.*;
@@ -13,14 +13,19 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 
-public class SequentialCoupler {
+/** Joinに近い動作を提供します */
+public class Coupler {
+
+	private Coupler() {
+		// TODO 自動生成されたコンストラクター・スタブ
+	}
 
 	public static <A, B> Stream<Couple<A, B>> stream(Collection<A> collectionA, Collection<B> collectionB, BiPredicate<A, B> test) {
-		return StreamSupport.stream(Spliterators.spliterator(iterable(collectionA, collectionB, test).iterator(), collectionA.size(), SIZED | IMMUTABLE | NONNULL), false);
+		return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterable(collectionA, collectionB, test).iterator(), IMMUTABLE | NONNULL), false);
 	}
 
 	public static <A, B> Iterable<Couple<A, B>> iterable(Collection<A> collectionA, Collection<B> collectionB, BiPredicate<A, B> test) {
-		return new SequentialCoupleIterator<>(collectionA, collectionB, test);
+		return new CoupleIterator<>(collectionA, collectionB, test);
 	}
 
 	public static <A, B> List<Couple<A, B>> list(Collection<A> collectionA, Collection<B> collectionB, BiPredicate<A, B> test) {
@@ -31,51 +36,58 @@ public class SequentialCoupler {
 		return stream(collectionA, collectionB, test).toArray(i -> new Couple[i]);
 	}
 
-	private static final class SequentialCoupleIterator<A, B> implements Iterable<Couple<A, B>>, Iterator<Couple<A, B>> {
+	private static final class CoupleIterator<A, B> implements Iterable<Couple<A, B>>, Iterator<Couple<A, B>> {
 
 		private final Iterator<A> iteratorA;
 
-		private final Iterator<B> iteratorB;
+		private final Collection<B> collectionB;
+
+		private Iterator<B> iteratorB;
 
 		private final BiPredicate<A, B> test;
 
 		private Couple<A, B> next;
 
-		private B targetB;
+		private A targetA;
 
-		public SequentialCoupleIterator(Collection<A> collectionA, Collection<B> collectionB, BiPredicate<A, B> test) {
+		private boolean state;
+
+		public CoupleIterator(Collection<A> collectionA, Collection<B> collectionB, BiPredicate<A, B> test) {
 			super();
 			this.iteratorA = collectionA.iterator();
-			this.iteratorB = collectionB.iterator();
+			this.collectionB = collectionB;
 			this.test = test;
-			if (iteratorB.hasNext()) {
-				targetB = iteratorB.next();
-			} else {
-				throw new IllegalArgumentException("コレクションBには要素のあるコレクションを渡してください");
-			}
+			state = true;
 		}
 
 		@Override
 		public boolean hasNext() {
 			// TODO 自動生成されたメソッド・スタブ
-			return iteratorA.hasNext();
+			while (true) {
+				if (state) {
+					if (iteratorA.hasNext()) {
+						targetA = iteratorA.next();
+						iteratorB = collectionB.iterator();
+						state = false;
+					} else {
+						return false;
+					}
+					while (iteratorB.hasNext()) {
+						B targetB = iteratorB.next();
+						if (test.test(targetA, targetB)) {
+							next = new Couple<A, B>(targetA, targetB);
+							return true;
+						}
+					}
+					state = true;
+				}
+			}
 		}
 
 		@Override
 		public Couple<A, B> next() {
 			// TODO 自動生成されたメソッド・スタブ
-			final A nextA = iteratorA.next();
-			while (true) {
-				if (test.test(nextA, targetB)) {
-					return new Couple(nextA, targetB);
-				}
-				if (iteratorB.hasNext()) {
-					final B targetB = iteratorB.next();
-				} else {
-					throw new IndexOutOfBoundsException("ペアが見つからないままコレクションBが尽きてしまいました");
-
-				}
-			}
+			return next;
 		}
 
 		@Override

@@ -1,4 +1,4 @@
-package lafkareine.util.collecbine;
+package lafkareine.util.collecbine.old;
 
 import java.util.*;
 import java.util.function.Consumer;

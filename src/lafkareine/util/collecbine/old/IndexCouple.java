@@ -1,5 +1,5 @@
 
-package lafkareine.util.collecbine;
+package lafkareine.util.collecbine.old;
 
 
 public class IndexCouple<T> {
